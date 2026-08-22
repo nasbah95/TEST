@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Rekod Keahlian</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #333; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; }
+        button:hover { background: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .btn-del { background: #dc3545; padding: 5px 10px; font-size: 12px; width: auto; }
+        .btn-del:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Sistem Rekod Keahlian</h2>
+    
+    <!-- Borang Tambah Ahli -->
+    <div class="form-group">
+        <label>Nama Penuh:</label>
+        <input type="text" id="nama" placeholder="Masukkan nama...">
+    </div>
+    <div class="form-group">
+        <label>Emel:</label>
+        <input type="email" id="email" placeholder="Masukkan emel...">
+    </div>
+    <div class="form-group">
+        <label>No. Telefon:</label>
+        <input type="text" id="telefon" placeholder="Masukkan telefon...">
+    </div>
+    <button onclick="tambahAhli()">Tambah Ahli</button>
+
+    <!-- Senarai Ahli -->
+    <h3>Senarai Ahli</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Emel</th>
+                <th>Telefon</th>
+                <th>Tindakan</th>
+            </tr>
+        </thead>
+        <tbody id="senaraiAhli">
+            <!-- Data akan masuk di sini secara automatik -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Muat data sedia ada dari localStorage apabila laman dibuka
+    document.addEventListener("DOMContentLoaded", paparkanAhli);
+
+    function ambilDataAhli() {
+        let ahli = localStorage.getItem('senarai_ahli');
+        return ahli ? JSON.parse(ahli) : [];
+    }
+
+    function simpanDataAhli(ahli) {
+        localStorage.setItem('senarai_ahli', JSON.stringify(ahli));
+    }
+
+    function tambahAhli() {
+        let nama = document.getElementById('nama').value.trim();
+        let email = document.getElementById('email').value.trim();
+        let telefon = document.getElementById('telefon').value.trim();
+
+        if (nama === '' || email === '' || telefon === '') {
+            alert('Sila isi semua maklumat!');
+            return;
+        }
+
+        let ahli = ambilDataAhli();
+        ahli.push({ nama, email, telefon });
+        simpanDataAhli(ahli);
+
+        // Kosongkan ruangan borang
+        document.getElementById('nama').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('telefon').value = '';
+
+        paparkanAhli();
+    }
+
+    function paparkanAhli() {
+        let ahli = ambilDataAhli();
+        let tbody = document.getElementById('senaraiAhli');
+        tbody.innerHTML = '';
+
+        if (ahli.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Tiada rekod ahli lagi.</td></tr>`;
+            return;
+        }
+
+        ahli.forEach((item, index) => {
+            let row = `<tr>
+                <td>${item.nama}</td>
+                <td>${item.email}</td>
+                <td>${item.telefon}</td>
+                <td><button class="btn-del" onclick="padamAhli(${index})">Padam</button></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function padamAhli(index) {
+        if (confirm('Adakah anda pasti mahu memadam ahli ini?')) {
+            let ahli = ambilDataAhli();
+            ahli.splice(index, 1);
+            simpanDataAhli(ahli);
+            paparkanAhli();
+        }
+    }
+</script>
+
+</body>
+</html>
